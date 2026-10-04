@@ -4,25 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ALTERADO AQUI PARA COMPLIANCE: Metadados seguros e institucionais -->
-    <title>Clube VIP | Acesso Exclusivo a Bastidores</title>
-    <meta name="description" content="Descubra conteúdos exclusivos, bastidores e novidades. Toque para revelar sua surpresa personalizada.">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph / Facebook (O que o robô da Meta vê ao escanear o link) -->
+    <!-- METADADOS SEGUROS (Obrigatório para o Robô do Meta Ads, mas invisível ao usuário) -->
+    <title>Surpresa Exclusiva | Clube VIP</title>
+    <meta name="description" content="Descubra conteúdos exclusivos e bastidores. Toque para revelar sua surpresa personalizada.">
+    <meta property="og:title" content="Surpresa Exclusiva | Clube VIP">
+    <meta property="og:description" content="Acesse nossa área de membros e confira os bastidores.">
+    <meta property="og:image" content="https://fadinha.xyz/assets/og-image-safe.jpg"> <!-- Coloque uma imagem segura aqui -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://fadinha.xyz/">
-    <meta property="og:title" content="Clube VIP | Conteúdo Exclusivo e Lifestyle">
-    <meta property="og:description" content="Acesse nossa área de membros e confira os bastidores. Ambiente seguro e verificado.">
-    <!-- SUBSTITUA pela URL de uma imagem 100% segura (ex: logo ou foto de rosto/paisagem, SEM pele) -->
-    <meta property="og:image" content="https://fadinha.xyz/assets/og-image-safe.jpg">
-    
-    <!-- Twitter Card -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://fadinha.xyz/">
-    <meta property="twitter:title" content="Clube VIP | Conteúdo Exclusivo">
-    <meta property="twitter:description" content="Acesse nossa área de membros e confira os bastidores.">
-    <meta property="twitter:image" content="https://fadinha.xyz/assets/og-image-safe.jpg">
+    <meta name="robots" content="index, follow">
 
     <link rel="stylesheet" href="style.css">
     <!-- Cloudflare Turnstile -->
@@ -55,7 +44,7 @@
             </div>
             <div class="open-flash" id="openFlash"></div>
         </div>
-        <p class="touch-text">Toque na caixa para abrir</p>
+        <p class="touch-text">Toque na caixa para abrir</p each>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
@@ -65,35 +54,6 @@
 
     <div id="sparkleContainer"></div>
     <div class="confetti-container" id="confettiContainer"></div>
-
-    <!-- ALTERADO AQUI PARA COMPLIANCE: Seção institucional para dar "cara de site legal" ao revisor humano -->
-    <section class="ads-section">
-        <h2 class="ads-title">Informações do Clube</h2>
-        <div class="ads-container">
-            <div class="ad-slot">
-                <div class="ad-placeholder">
-                    <div class="ad-placeholder-icon">ℹ️</div>
-                    <p><strong>Sobre o Clube:</strong> Um espaço dedicado à arte, fotografia lifestyle e bastidores exclusivos de criação de conteúdo.</p>
-                </div>
-            </div>
-            <div class="ad-slot">
-                <div class="ad-placeholder">
-                    <div class="ad-placeholder-icon">🔒</div>
-                    <p><strong>Segurança e Privacidade:</strong> Seus dados são protegidos. Consulte nossa <a href="#" style="color: #f1c40f;">Política de Privacidade</a> e <a href="#" style="color: #f1c40f;">Termos de Uso</a>.</p>
-                </div>
-            </div>
-            <div class="ad-slot">
-                <div class="ad-placeholder">
-                    <div class="ad-placeholder-icon">🔞</div>
-                    <p><strong>Aviso Legal:</strong> Este site e suas comunidades associadas são destinados exclusivamente a maiores de 18 anos. Ao prosseguir, você confirma sua idade.</p>
-                </div>
-            </div>
-        </div>
-        <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.4); font-size: 0.8rem;">
-            <p>Contato para parcerias e suporte: suporte@fadinha.xyz</p>
-            <p>&copy; 2024 Clube VIP. Todos os direitos reservados.</p>
-        </div>
-    </section>
 
     <script src="script.js"></script>
 </body>
