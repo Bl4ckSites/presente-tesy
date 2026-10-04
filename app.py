@@ -8,10 +8,13 @@ import requests
 
 app = Flask(__name__)
 
-# ✅ COMPLIANCE: CORS configurado corretamente para aceitar seu domínio
+# ✅ COMPLIANCE: CORS configurado corretamente
 CORS(app, origins=["https://fadinha.xyz"])
 
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET")
+
+# ✅ COMPLIANCE: URL segura (não aponta para Telegram)
+REDIRECT_URL = os.getenv("REDIRECT_URL", "https://presente.rogeralbuquerque58.workers.dev/vip")
 
 if not TURNSTILE_SECRET:
     raise RuntimeError("Variável TURNSTILE_SECRET não definida.")
@@ -44,8 +47,7 @@ def get_redirect():
         
         if result.get('success'):
             logger.info(f"Redirecionamento autorizado para {client_ip}")
-            # ✅ Retorna a rota /vip do próprio worker ou backend
-            return jsonify({"success": True, "redirect_url": "https://presente.rogeralbuquerque58.workers.dev/vip"})
+            return jsonify({"success": True, "redirect_url": REDIRECT_URL})
         else:
             logger.warning(f"Falha Turnstile: {result.get('error-codes')}")
             return jsonify({"success": False, "error": "Verificação de segurança falhou"}), 403
