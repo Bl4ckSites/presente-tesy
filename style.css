@@ -1,0 +1,885 @@
+/* ========== VARIÁVEIS CSS ========== */
+:root {
+  --color-primary: #e74c3c;
+  --color-primary-dark: #922b21;
+  --color-primary-darker: #7b241c;
+  --color-accent: #f1c40f;
+  --color-accent-dark: #e67e22;
+  --color-bg-dark: #0a0a1a;
+  --color-bg-darker: #020210;
+  --color-orb-purple: #7b2ff7;
+  --color-orb-pink: #d946ef;
+  --color-orb-amber: #f59e0b;
+  
+  --shadow-heavy: 0 8px 18px rgba(0,0,0,0.5);
+  --shadow-medium: 0 6px 12px rgba(0,0,0,0.4);
+  --shadow-light: 0 2px 5px rgba(0,0,0,0.3);
+  --shadow-ad: 0 4px 15px rgba(241,196,15,0.15);
+  
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.5s ease;
+  --transition-slow: 0.8s ease;
+  
+  --glow-accent: rgba(241, 196, 15, 0.4);
+  --glow-accent-strong: rgba(241, 196, 15, 0.7);
+  
+  --ad-bg: rgba(255,255,255,0.03);
+  --ad-border: rgba(241,196,15,0.2);
+  --ad-hover-border: rgba(241,196,15,0.5);
+}
+
+/* ========== RESET E FUNDO ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto; /* Permite scroll para ver anúncios */
+}
+
+body {
+  background: var(--color-bg-dark);
+  font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+/* Camada de fundo (gradiente) */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, #0d0d2b 40%, var(--color-bg-darker) 100%);
+  z-index: 0;
+}
+
+/* Esferas de luz – reduzidas e sem blur em celulares antigos */
+.blur-orb {
+  position: fixed;
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 60vw; height: 60vw; max-width: 600px; max-height: 600px;
+  background: var(--color-orb-purple);
+  top: -20%; left: -15%;
+  filter: blur(80px);
+  opacity: 0.2;
+  animation: drift-orb1 20s linear infinite alternate;
+  will-change: transform;
+}
+
+.orb-2 {
+  width: 50vw; height: 50vw; max-width: 500px; max-height: 500px;
+  background: var(--color-orb-pink);
+  bottom: -15%; right: -10%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: drift-orb2 22s linear infinite alternate;
+  will-change: transform;
+}
+
+.orb-3 {
+  width: 40vw; height: 40vw; max-width: 400px; max-height: 400px;
+  background: var(--color-orb-amber);
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  filter: blur(60px);
+  opacity: 0.1;
+  animation: drift-orb3 24s linear infinite alternate;
+  will-change: transform;
+}
+
+@keyframes drift-orb1 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(30px, 40px); }
+}
+@keyframes drift-orb2 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-30px, -20px); }
+}
+@keyframes drift-orb3 {
+  0% { transform: translate(-50%, -50%) translate(0, 0); }
+  100% { transform: translate(-50%, -50%) translate(20px, -30px); }
+}
+
+/* Remover desfoque pesado em celulares antigos para performance */
+@media (max-width: 374px) {
+  .orb-1, .orb-2 { filter: blur(40px); opacity: 0.1; }
+  .orb-3 { filter: blur(30px); opacity: 0.05; }
+}
+
+/* Canvas de partículas – só ativo em telas maiores que 600px */
+#particlesCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  #particlesCanvas { display: none; }
+}
+
+/* Container central */
+.container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  animation: slideInUp 0.8s ease-out;
+  width: 100%;
+  max-width: 100%;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== CAIXA DE PRESENTE ========== */
+.gift-wrapper {
+  position: relative;
+  width: 55vw; height: 60vw;
+  max-width: 240px; max-height: 260px;
+  cursor: pointer;
+  transform-origin: center 70%;
+  animation: float 6s ease-in-out infinite;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+  will-change: transform;
+}
+
+.gift-wrapper:hover { 
+  transform: scale(1.03);
+}
+
+.gift-wrapper:active { 
+  transform: scale(0.97);
+}
+
+/* Acessibilidade - foco visível */
+.gift-wrapper:focus {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 8px;
+}
+
+.gift-wrapper:focus:not(:focus-visible) {
+  outline: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Brilho ambiente (glow) */
+.gift-glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 120%; height: 120%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  z-index: -1;
+  animation: glow-pulse 4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+}
+
+/* Anel orbitante dourado – retorna em telas médias e grandes */
+.gift-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 120%; height: 120%;
+  transform: translate(-50%, -50%) rotateX(75deg);
+  border-radius: 50%;
+  border: 2px solid rgba(241, 196, 15, 0.4);
+  box-shadow: 0 0 15px var(--glow-accent), inset 0 0 15px rgba(241, 196, 15, 0.1);
+  animation: ring-rotate 10s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+  display: none; /* escondido por padrão (mobile antigo) */
+  will-change: transform;
+}
+
+@media (min-width: 375px) {
+  .gift-wrapper::before { display: block; }
+}
+
+@keyframes ring-rotate {
+  0% { transform: translate(-50%, -50%) rotateX(75deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(75deg) rotateZ(360deg); }
+}
+
+/* Estrelas cintilantes estáticas (pseudo-elemento) */
+.gift-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(1.5px 1.5px at 20% 30%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 20%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 80%, var(--color-accent) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 70%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 90% 60%, var(--color-accent) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 10%, #fff 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 70% 85%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 40%, var(--color-accent) 0%, transparent 100%);
+  background-size: 200% 200%;
+  opacity: 0.5;
+  animation: twinkle 5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+/* Em telas muito pequenas, estrelas mais sutis */
+@media (max-width: 374px) {
+  .gift-wrapper::after { opacity: 0.25; }
+}
+
+/* Tampa */
+.gift-lid {
+  position: absolute;
+  top: 0; left: 6%;
+  width: 88%; height: 16%;
+  z-index: 5;
+  transform-origin: left bottom;
+  transition: transform var(--transition-normal), opacity var(--transition-normal);
+  will-change: transform, opacity;
+}
+
+.lid-top {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 55%;
+  background: linear-gradient(180deg, var(--color-primary) 0%, #c0392b 100%);
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), var(--shadow-medium);
+  overflow: hidden;
+}
+
+.lid-top::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: lid-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes lid-shimmer {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+.lid-front {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 45%;
+  background: #b03a2e;
+  border-radius: 0 0 4px 4px;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.3);
+}
+
+.lid-shine {
+  position: absolute;
+  top: 8%; left: 12%;
+  width: 35%; height: 20%;
+  background: rgba(255,255,255,0.4);
+  border-radius: 20px;
+  filter: blur(2px);
+  opacity: 0.6;
+}
+
+/* Base */
+.gift-base {
+  position: absolute;
+  bottom: 0; left: 6%;
+  width: 88%; height: 68%;
+  z-index: 3;
+}
+
+.base-front {
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: 0 0 8px 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), var(--shadow-heavy);
+  position: relative;
+  overflow: hidden;
+}
+
+.base-front::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 200%; height: 25px;
+  background: linear-gradient(0deg, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: base-wave 6s ease-in-out infinite;
+}
+
+@keyframes base-wave {
+  0%, 100% { transform: translateX(-25%) scaleY(1); }
+  50% { transform: translateX(0%) scaleY(1.2); }
+}
+
+.base-inner {
+  position: absolute;
+  top: 6%; left: 8%; right: 8%; bottom: 10%;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%);
+  border-radius: 4px;
+}
+
+/* Fitas */
+.gift-ribbon-vertical {
+  position: absolute;
+  top: -1%; left: 43%;
+  width: 14%; height: 102%;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  z-index: 4;
+  box-shadow: 0 0 8px var(--glow-accent);
+  overflow: hidden;
+  transition: filter var(--transition-fast);
+}
+
+.gift-ribbon-horizontal {
+  position: absolute;
+  top: 46%; left: 6%;
+  width: 88%; height: 12%;
+  background: linear-gradient(0deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  z-index: 4;
+  box-shadow: 0 0 8px var(--glow-accent);
+  overflow: hidden;
+  transition: filter var(--transition-fast);
+}
+
+.gift-ribbon-vertical::after,
+.gift-ribbon-horizontal::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: ribbon-shimmer 2.5s ease-in-out infinite;
+}
+
+.gift-ribbon-horizontal::after {
+  animation-delay: 0.6s;
+  background: linear-gradient(0deg, transparent, rgba(255,255,255,0.5), transparent);
+}
+
+@keyframes ribbon-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.ribbon-shine {
+  position: absolute;
+  top: 15%; left: 20%; right: 20%;
+  height: 30%;
+  background: rgba(255,255,255,0.5);
+  border-radius: 4px;
+  filter: blur(2px);
+}
+
+/* Laço */
+.gift-bow {
+  position: absolute;
+  top: -15%; left: 32%;
+  width: 36%; height: 25%;
+  z-index: 6;
+  animation: bow-wiggle 5s ease-in-out infinite;
+}
+
+@keyframes bow-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+.bow-loop {
+  position: absolute;
+  width: 44%; height: 70%;
+  background: radial-gradient(circle at 30% 30%, var(--color-accent), var(--color-accent-dark));
+  border-radius: 50%;
+  box-shadow: var(--shadow-light);
+}
+
+.bow-left {
+  top: 10%; left: 0;
+  transform: rotate(-25deg);
+}
+
+.bow-right {
+  top: 10%; right: 0;
+  transform: rotate(25deg);
+}
+
+.bow-center {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 26%; height: 26%;
+  background: var(--color-accent-dark);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ========== EFEITOS EXTRAS (apenas telas maiores) ========== */
+.sparkle-container {
+  display: none; /* removido para performance */
+}
+
+/* Brilho ao abrir */
+.open-flash {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 90%; height: 90%;
+  background: radial-gradient(circle, rgba(255,215,0,0.8) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  border-radius: 50%;
+  z-index: 9;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Confetes */
+.confetti-container {
+  position: absolute;
+  top: 50%; left: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Texto "Toque na caixa" */
+.touch-text {
+  color: rgba(255,255,255,0.9);
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 15px rgba(245,158,11,0.6);
+  animation: fade-text 3s ease-in-out infinite;
+  margin-top: 5px;
+}
+
+@keyframes fade-text {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ========== LOADING OVERLAY ========== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,2,16,0.92);
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: white;
+  font-size: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.loading-overlay p {
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.loader-ring {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.15);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  will-change: transform;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 374px) {
+  .loader-ring {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+  .loading-overlay {
+    background: rgba(2,2,16,0.95);
+    backdrop-filter: none;
+  }
+}
+
+@supports (backdrop-filter: blur(10px)) and (min-width: 600px) {
+  .loading-overlay {
+    background: rgba(2,2,16,0.8);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* ========== ANIMAÇÕES DE ABERTURA ========== */
+.gift-wrapper.opening .gift-glow {
+  animation: glow-intensify 0.6s forwards;
+}
+
+@keyframes glow-intensify {
+  to { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+}
+
+.gift-wrapper.lid-off .gift-lid {
+  transform: translateY(-120px) rotate(-35deg);
+  opacity: 0;
+  transition: all var(--transition-slow);
+}
+
+.gift-wrapper.flash .open-flash {
+  animation: flash-burst 0.7s ease-out forwards;
+}
+
+@keyframes flash-burst {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.8); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+/* ========== ESTADOS DE SUCESSO E ERRO ========== */
+.gift-wrapper.success .gift-glow {
+  background: radial-gradient(circle, rgba(46,204,113,0.4) 0%, transparent 70%);
+  animation: success-pulse 1s ease-out;
+}
+
+@keyframes success-pulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.3); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.gift-wrapper.error {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+/* ========== ÁREA DE ANÚNCIOS ========== */
+.ads-section {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 900px;
+  margin-top: 40px;
+  padding: 20px;
+  animation: slideInUp 1s ease-out 0.3s backwards;
+}
+
+.ads-title {
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.ads-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.ad-slot {
+  position: relative;
+  background: var(--ad-bg);
+  border: 1px solid var(--ad-border);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.ad-slot::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(241,196,15,0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.ad-slot:hover {
+  border-color: var(--ad-hover-border);
+  box-shadow: var(--shadow-ad);
+  transform: translateY(-2px);
+}
+
+.ad-slot:hover::before {
+  left: 100%;
+}
+
+/* Placeholder visual quando não há anúncio */
+.ad-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.ad-placeholder-icon {
+  width: 50px;
+  height: 50px;
+  border: 2px dashed rgba(241,196,15,0.3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: rgba(241,196,15,0.4);
+}
+
+/* Banner horizontal (topo ou fundo) */
+.ad-banner {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  margin: 20px auto;
+  background: var(--ad-bg);
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  position: relative;
+}
+
+.ad-banner:hover {
+  border-color: var(--ad-hover-border);
+  box-shadow: var(--shadow-ad);
+}
+
+/* Responsividade para anúncios */
+@media (max-width: 600px) {
+  .ads-section {
+    margin-top: 30px;
+    padding: 15px;
+  }
+  
+  .ads-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .ad-slot {
+    min-height: 200px;
+    padding: 15px;
+  }
+  
+  .ad-banner {
+    height: 60px;
+    max-width: 320px;
+  }
+}
+
+/* Celulares antigos - anúncios mais simples */
+@media (max-width: 374px) {
+  .ad-slot {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255,255,255,0.05);
+  }
+  
+  .ad-banner {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Modo claro para anúncios */
+@media (prefers-color-scheme: light) {
+  .ads-title {
+    color: rgba(0,0,0,0.5);
+  }
+  
+  .ad-slot,
+  .ad-banner {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(241,196,15,0.3);
+  }
+  
+  .ad-slot:hover,
+  .ad-banner:hover {
+    border-color: rgba(241,196,15,0.6);
+    box-shadow: 0 4px 15px rgba(241,196,15,0.2);
+  }
+  
+  .ad-placeholder {
+    color: rgba(0,0,0,0.3);
+  }
+  
+  .ad-placeholder-icon {
+    border-color: rgba(241,196,15,0.4);
+    color: rgba(241,196,15,0.5);
+  }
+}
+
+/* ========== MEDIA QUERIES PROGRESSIVAS ========== */
+
+/* Celulares antigos (até 374px) – desempenho máximo */
+@media (max-width: 374px) {
+  .gift-wrapper {
+    width: 70vw; height: 75vw;
+  }
+  .gift-glow {
+    filter: blur(12px);
+  }
+}
+
+/* Celulares modernos (375px - 600px) – visual intermediário */
+@media (min-width: 375px) and (max-width: 600px) {
+  .gift-wrapper {
+    width: 60vw; height: 65vw;
+    max-width: 280px; max-height: 300px;
+  }
+}
+
+/* Tablets e desktop (acima de 600px) – visual completo */
+@media (min-width: 601px) {
+  .gift-wrapper {
+    width: 240px; height: 260px;
+    animation: float 6s ease-in-out infinite, gift-shadow-pulse 3s ease-in-out infinite;
+  }
+  .gift-wrapper:hover {
+    filter: drop-shadow(0 0 25px var(--glow-accent-strong));
+  }
+  @keyframes gift-shadow-pulse {
+    0%, 100% { filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); }
+    50% { filter: drop-shadow(0 15px 35px var(--glow-accent)); }
+  }
+}
+
+/* Telas grandes (desktop) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .gift-wrapper {
+    max-width: 320px;
+    max-height: 350px;
+  }
+  
+  .ads-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Feedback tátil em dispositivos touch */
+@media (hover: none) and (pointer: coarse) {
+  .gift-wrapper:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  .ad-slot:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ========== MODO CLARO/ESCURO AUTOMÁTICO ========== */
+@media (prefers-color-scheme: light) {
+  body {
+    background: #f0f0f5;
+  }
+  
+  .bg-layer {
+    background: radial-gradient(ellipse at 50% 30%, #e8e8f0 0%, #d0d0e0 40%, #b0b0c0 100%);
+  }
+  
+  .touch-text {
+    color: rgba(0,0,0,0.8);
+    text-shadow: 0 0 15px rgba(241,196,15,0.4);
+  }
+  
+  .loading-overlay {
+    background: rgba(240,240,245,0.92);
+    color: #0a0a1a;
+  }
+}
+
+/* Respeitar preferência de redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
