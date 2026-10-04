@@ -8,13 +8,14 @@ import requests
 
 app = Flask(__name__)
 
-# CORS – permite qualquer origem? Não, vamos especificar a sua.
+# ALTERADO AQUI PARA COMPLIANCE: Restringir origens permitidas explicitamente
 CORS(app, origins=["https://fadinha.xyz"])
 
 # Chave secreta do Turnstile (vem do ambiente)
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET")
-# URL de destino (Telegram)
-REDIRECT_URL = os.getenv("REDIRECT_URL", "https://t.me/seu_canal")
+
+# ALTERADO AQUI PARA COMPLIANCE: Rota interna segura. Nunca mais aponte para t.me aqui.
+REDIRECT_URL = os.getenv("REDIRECT_URL", "/vip")
 
 if not TURNSTILE_SECRET:
     raise RuntimeError("Variável TURNSTILE_SECRET não definida.")
@@ -22,7 +23,7 @@ if not TURNSTILE_SECRET:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Rate limiting (opcional)
+# Rate limiting (proteção contra abuso)
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["10 per minute"])
 
 @app.route('/get-redirect', methods=['POST'])
@@ -30,14 +31,13 @@ limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["10 per 
 def get_redirect():
     client_ip = get_remote_address()
     logger.info(f"Requisição de IP: {client_ip}")
-
+    
     data = request.get_json(silent=True)
     if not data or 'token' not in data:
         logger.warning(f"Dados inválidos de {client_ip}")
         return jsonify({"success": False, "error": "Token ausente"}), 400
-
+    
     token = data['token']
-
     try:
         resp = requests.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', data={
             'secret': TURNSTILE_SECRET,
@@ -46,9 +46,10 @@ def get_redirect():
         }, timeout=5)
         result = resp.json()
         logger.info(f"Resultado Turnstile: {result}")
-
+        
         if result.get('success'):
             logger.info(f"Redirecionamento autorizado para {client_ip}")
+            # ALTERADO AQUI PARA COMPLIANCE: Retorna apenas a rota interna segura
             return jsonify({"success": True, "redirect_url": REDIRECT_URL})
         else:
             logger.warning(f"Falha Turnstile: {result.get('error-codes')}")
