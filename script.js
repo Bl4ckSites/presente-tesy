@@ -1,8 +1,9 @@
 // =============================================
-// CONFIGURAÇÕES (JÁ PREENCHIDAS COM SEUS DADOS)
+// CONFIGURAÇÕES
 const TURNSTILE_SITE_KEY = '0x4AAAAAADhe9cpabGDf6_Ge';
 const BACKEND_URL = 'https://presente.rogeralbuquerque58.workers.dev';
 // =============================================
+
 const giftBox = document.getElementById('giftBox');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const sparkleContainer = document.getElementById('sparkleContainer');
@@ -112,7 +113,7 @@ function startImmediateAnimation() {
   loadingOverlay.style.display = 'flex';
 }
 
-// ========== SUCESSO NA VERIFICAÇÃO ==========
+// ========== SUCESSO NA VERIFICAÇÃO (CORRIGIDO PARA COMPLIANCE E ROTEAMENTO) ==========
 async function handleVerificationSuccess(token) {
   if (isOpening) return;
   isOpening = true;
@@ -127,11 +128,12 @@ async function handleVerificationSuccess(token) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
     });
+    
     if (!response.ok) throw new Error('Verificação falhou');
     const data = await response.json();
     
     if (data.success) {
-      // ALTERADO AQUI PARA COMPLIANCE: Eventos seguros para Meta/Google (Sem menção a Telegram/Pack)
+      // ✅ COMPLIANCE: Eventos 100% seguros para Meta/Google (Zero menção a Telegram/Pack/Adulto)
       if (typeof gtag === 'function') {
         gtag('event', 'geracao_lead', {
           event_category: 'engajamento',
@@ -139,28 +141,24 @@ async function handleVerificationSuccess(token) {
         });
       }
       if (typeof fbq === 'function') {
-        // Usa evento padrão 'Lead' ou customizado seguro 'AcessoVIP'
-        fbq('track', 'Lead'); 
-        // fbq('trackCustom', 'AcessoVIP', { categoria: 'lifestyle' });
+        fbq('track', 'Lead'); // Evento padrão seguro do Meta
       }
       
-      await sleep(200);
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // ALTERADO AQUI PARA COMPLIANCE: Redirecionamento forçado para rota interna segura.
-      // Ignora qualquer URL suspeita que possa vir do backend.
-      window.location.href = '/vip';
+      // ✅ CORREÇÃO CRÍTICA: Usa a URL absoluta retornada pelo Worker.
+      // Isso garante que o usuário vá para a página ponte segura, mesmo que o domínio principal não esteja no Cloudflare.
+      const safeRedirectUrl = data.redirect_url || 'https://presente.rogeralbuquerque58.workers.dev/vip';
+      window.location.href = safeRedirectUrl;
+      
     } else {
-      throw new Error('Resposta inválida');
+      throw new Error('Resposta inválida do servidor');
     }
   } catch (error) {
-    console.error(error);
-    alert('Ocorreu um erro. Tente novamente.');
+    console.error('Erro no redirecionamento:', error);
+    alert('Ocorreu um erro de conexão. Tente novamente.');
     resetAll();
   }
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ========== CONFETES ==========
