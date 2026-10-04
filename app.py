@@ -8,14 +8,10 @@ import requests
 
 app = Flask(__name__)
 
-# ALTERADO AQUI PARA COMPLIANCE: Restringir origens permitidas explicitamente
+# ✅ COMPLIANCE: CORS configurado corretamente para aceitar seu domínio
 CORS(app, origins=["https://fadinha.xyz"])
 
-# Chave secreta do Turnstile (vem do ambiente)
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET")
-
-# ALTERADO AQUI PARA COMPLIANCE: Rota interna segura. Nunca mais aponte para t.me aqui.
-REDIRECT_URL = os.getenv("REDIRECT_URL", "/vip")
 
 if not TURNSTILE_SECRET:
     raise RuntimeError("Variável TURNSTILE_SECRET não definida.")
@@ -23,7 +19,6 @@ if not TURNSTILE_SECRET:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Rate limiting (proteção contra abuso)
 limiter = Limiter(app=app, key_func=get_remote_address, default_limits=["10 per minute"])
 
 @app.route('/get-redirect', methods=['POST'])
@@ -49,8 +44,8 @@ def get_redirect():
         
         if result.get('success'):
             logger.info(f"Redirecionamento autorizado para {client_ip}")
-            # ALTERADO AQUI PARA COMPLIANCE: Retorna apenas a rota interna segura
-            return jsonify({"success": True, "redirect_url": REDIRECT_URL})
+            # ✅ Retorna a rota /vip do próprio worker ou backend
+            return jsonify({"success": True, "redirect_url": "https://presente.rogeralbuquerque58.workers.dev/vip"})
         else:
             logger.warning(f"Falha Turnstile: {result.get('error-codes')}")
             return jsonify({"success": False, "error": "Verificação de segurança falhou"}), 403
