@@ -3,7 +3,6 @@
 const TURNSTILE_SITE_KEY = '0x4AAAAAADhe9cpabGDf6_Ge';
 const BACKEND_URL = 'https://presente.rogeralbuquerque58.workers.dev';
 // =============================================
-
 const giftBox = document.getElementById('giftBox');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const sparkleContainer = document.getElementById('sparkleContainer');
@@ -113,7 +112,7 @@ function startImmediateAnimation() {
   loadingOverlay.style.display = 'flex';
 }
 
-// ========== SUCESSO NA VERIFICAÇÃO (CORRIGIDO PARA COMPLIANCE E ROTEAMENTO) ==========
+// ========== SUCESSO NA VERIFICAÇÃO (CORRIGIDO - SEM GATILHOS) ==========
 async function handleVerificationSuccess(token) {
   if (isOpening) return;
   isOpening = true;
@@ -128,12 +127,11 @@ async function handleVerificationSuccess(token) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token })
     });
-    
     if (!response.ok) throw new Error('Verificação falhou');
     const data = await response.json();
     
-    if (data.success) {
-      // ✅ COMPLIANCE: Eventos 100% seguros para Meta/Google (Zero menção a Telegram/Pack/Adulto)
+    if (data.success && data.redirect_url) {
+      // ✅ COMPLIANCE: Eventos SEGUROS (sem palavras proibidas)
       if (typeof gtag === 'function') {
         gtag('event', 'geracao_lead', {
           event_category: 'engajamento',
@@ -141,22 +139,19 @@ async function handleVerificationSuccess(token) {
         });
       }
       if (typeof fbq === 'function') {
-        fbq('track', 'Lead'); // Evento padrão seguro do Meta
+        fbq('track', 'Lead');
       }
       
       await new Promise(resolve => setTimeout(resolve, 200));
       
-      // ✅ CORREÇÃO CRÍTICA: Usa a URL absoluta retornada pelo Worker.
-      // Isso garante que o usuário vá para a página ponte segura, mesmo que o domínio principal não esteja no Cloudflare.
-      const safeRedirectUrl = data.redirect_url || 'https://presente.rogeralbuquerque58.workers.dev/vip';
-      window.location.href = safeRedirectUrl;
-      
+      // ✅ Redirecionamento para URL segura retornada pelo Worker
+      window.location.href = data.redirect_url;
     } else {
-      throw new Error('Resposta inválida do servidor');
+      throw new Error('Resposta inválida');
     }
   } catch (error) {
-    console.error('Erro no redirecionamento:', error);
-    alert('Ocorreu um erro de conexão. Tente novamente.');
+    console.error(error);
+    alert('Ocorreu um erro. Tente novamente.');
     resetAll();
   }
 }
